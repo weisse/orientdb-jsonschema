@@ -46,8 +46,8 @@ public class OTypeJsonSchemaMap extends HashMap<OType,JsonNode> {
 		
 		ObjectNode byteObject = new ObjectNode(JsonNodeFactory.instance);
 		byteObject.put(JsonSchemaDraft4.TYPE, JsonSchemaDraft4.NUMBER);
-		byteObject.put(JsonSchemaDraft4.MINIMUM, -128);
-		byteObject.put(JsonSchemaDraft4.MAXIMUM, 127);
+		byteObject.put(JsonSchemaDraft4.MINIMUM, Byte.MIN_VALUE);
+		byteObject.put(JsonSchemaDraft4.MAXIMUM, Byte.MAX_VALUE);
 		this.put(OType.BYTE, byteObject);
 		
 		ObjectNode binaryObject = new ObjectNode(JsonNodeFactory.instance);
@@ -62,33 +62,32 @@ public class OTypeJsonSchemaMap extends HashMap<OType,JsonNode> {
 		
 		ObjectNode integerObject = new ObjectNode(JsonNodeFactory.instance);
 		integerObject.put(JsonSchemaDraft4.TYPE, JsonSchemaDraft4.NUMBER);
-		integerObject.put(JsonSchemaDraft4.MINIMUM, -2147483648);
-		integerObject.put(JsonSchemaDraft4.MAXIMUM, 2147483647);
+		integerObject.put(JsonSchemaDraft4.MINIMUM, Integer.MIN_VALUE);
+		integerObject.put(JsonSchemaDraft4.MAXIMUM, Integer.MAX_VALUE);
 		this.put(OType.INTEGER, integerObject);
 		
 		ObjectNode shortObject = new ObjectNode(JsonNodeFactory.instance);
 		shortObject.put(JsonSchemaDraft4.TYPE, JsonSchemaDraft4.NUMBER);
-		shortObject.put(JsonSchemaDraft4.MINIMUM, -32768);
-		shortObject.put(JsonSchemaDraft4.MAXIMUM, 32767);
+		shortObject.put(JsonSchemaDraft4.MINIMUM, Short.MIN_VALUE);
+		shortObject.put(JsonSchemaDraft4.MAXIMUM, Short.MAX_VALUE);
 		this.put(OType.SHORT, shortObject);
 		
 		ObjectNode longObject = new ObjectNode(JsonNodeFactory.instance);
 		longObject.put(JsonSchemaDraft4.TYPE, JsonSchemaDraft4.NUMBER);
-		longObject.put(JsonSchemaDraft4.MINIMUM, -2e63);
-		longObject.put(JsonSchemaDraft4.MINIMUM, 2e63-1);
+		longObject.put(JsonSchemaDraft4.MINIMUM, Long.MIN_VALUE);
+		longObject.put(JsonSchemaDraft4.MINIMUM, Long.MAX_VALUE);
 		this.put(OType.LONG, longObject);
 		
 		ObjectNode floatObject = new ObjectNode(JsonNodeFactory.instance);
 		floatObject.put(JsonSchemaDraft4.TYPE, JsonSchemaDraft4.NUMBER);
-		floatObject.put(JsonSchemaDraft4.MINIMUM, 2e-149);
-		floatObject.put(JsonSchemaDraft4.MAXIMUM, (2-(2e-23))*(2e127));
+		floatObject.put(JsonSchemaDraft4.MINIMUM, Float.MIN_VALUE);
+		floatObject.put(JsonSchemaDraft4.MAXIMUM, Float.MAX_VALUE);
 		this.put(OType.FLOAT, floatObject);
-		
-		// TODO: fix the problem of dobule numbers range
+
 		ObjectNode doubleObject = new ObjectNode(JsonNodeFactory.instance);
 		doubleObject.put(JsonSchemaDraft4.TYPE, JsonSchemaDraft4.NUMBER);
-		doubleObject.put(JsonSchemaDraft4.MINIMUM, "2e-1074");
-		doubleObject.put(JsonSchemaDraft4.MAXIMUM, "(2-(2e-52))*(2e1023)");
+		doubleObject.put(JsonSchemaDraft4.MINIMUM, Double.MIN_VALUE);
+		doubleObject.put(JsonSchemaDraft4.MAXIMUM, Double.MAX_VALUE);
 		this.put(OType.DOUBLE, doubleObject);
 
 		ObjectNode decimalObject = new ObjectNode(JsonNodeFactory.instance);
