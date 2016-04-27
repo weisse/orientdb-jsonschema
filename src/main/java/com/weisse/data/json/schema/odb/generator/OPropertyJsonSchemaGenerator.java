@@ -1,7 +1,5 @@
 package com.weisse.data.json.schema.odb.generator;
 
-import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
-
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -10,6 +8,9 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.weisse.data.json.schema.odb.interfaces.PropertyConstraint;
+import com.weisse.data.json.schema.odb.vocabulary.JsonSchemaDraft4;
+
+import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 
 
 
@@ -49,9 +50,9 @@ public class OPropertyJsonSchemaGenerator {
 		ArrayNode jsonOneOf = new ArrayNode(JsonNodeFactory.instance);
 		ObjectNode jsonAllOfWrapper = new ObjectNode(JsonNodeFactory.instance);
 		ArrayNode jsonAllOf = new ArrayNode(JsonNodeFactory.instance);
-		jsonAllOfWrapper.put("allOf", jsonAllOf);
+		jsonAllOfWrapper.put(JsonSchemaDraft4.ALL_OF, jsonAllOf);
 		jsonOneOf.add(jsonAllOfWrapper);
-		propertySchema.put("oneOf", jsonOneOf);
+		propertySchema.put(JsonSchemaDraft4.ONE_OF, jsonOneOf);
 		return propertySchema;
 	}
 	

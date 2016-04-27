@@ -1,7 +1,6 @@
 package com.weisse.data.json.schema.odb.strategy;
 
 import java.util.Map;
-import java.util.Set;
 
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.weisse.data.json.schema.odb.OJsonSchemaConfiguration;

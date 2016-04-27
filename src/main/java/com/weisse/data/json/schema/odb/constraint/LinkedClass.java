@@ -11,6 +11,7 @@ import com.weisse.data.json.schema.odb.OTypeJsonSchemaMap;
 import com.weisse.data.json.schema.odb.generator.OClassJsonSchemaGenerator;
 import com.weisse.data.json.schema.odb.strategy.PropertyNameStrategy;
 import com.weisse.data.json.schema.odb.strategy.RequiredPropertyStrategy;
+import com.weisse.data.json.schema.odb.vocabulary.JsonSchemaDraft4;
 
 public class LinkedClass extends AbstractConstraint{
 	
@@ -30,11 +31,11 @@ public class LinkedClass extends AbstractConstraint{
 				type == OType.LINKSET
 			){
 				ObjectNode itemsSchema = new ObjectNode(JsonNodeFactory.instance);
-				itemsSchema.put("items", (ObjectNode) typeMap.get(OType.LINK));
+				itemsSchema.put(JsonSchemaDraft4.ITEMS, (ObjectNode) typeMap.get(OType.LINK));
 				constraints.add(itemsSchema);
 			}else if(type == OType.LINKMAP){
 				ObjectNode propertiesSchema = new ObjectNode(JsonNodeFactory.instance);
-				propertiesSchema.put("additionalProperties", (ObjectNode) typeMap.get(OType.LINK));
+				propertiesSchema.put(JsonSchemaDraft4.ADDITIONAL_PROPERTIES, (ObjectNode) typeMap.get(OType.LINK));
 				constraints.add(propertiesSchema);
 			}else{
 				ObjectNode classSchema = null;
@@ -60,7 +61,7 @@ public class LinkedClass extends AbstractConstraint{
 						);
 					}
 				}
-				requiredSchema.put("required", requiredItems);
+				requiredSchema.put(JsonSchemaDraft4.REQUIRED, requiredItems);
 				if(type == OType.EMBEDDED){
 					constraints.add(classSchema);
 					if(requiredItems.size() > 0){
@@ -77,8 +78,8 @@ public class LinkedClass extends AbstractConstraint{
 					if(requiredItems.size() > 0){
 						itemsAllOf.add(requiredSchema);
 					}
-					itemsAllOfWrapper.put("allOf", itemsAllOf);
-					itemsSchema.put("items", itemsAllOfWrapper);
+					itemsAllOfWrapper.put(JsonSchemaDraft4.ALL_OF, itemsAllOf);
+					itemsSchema.put(JsonSchemaDraft4.ITEMS, itemsAllOfWrapper);
 					constraints.add(itemsSchema);
 				}else if(type == OType.EMBEDDEDMAP){
 					ObjectNode propertiesSchema = new ObjectNode(JsonNodeFactory.instance);
@@ -88,8 +89,8 @@ public class LinkedClass extends AbstractConstraint{
 					if(requiredItems.size() > 0){
 						propertiesAllOf.add(requiredSchema);
 					}
-					propertiesAllOfWrapper.put("allOf", propertiesAllOf);
-					propertiesSchema.put("additionalProperties", propertiesAllOfWrapper);
+					propertiesAllOfWrapper.put(JsonSchemaDraft4.ALL_OF, propertiesAllOf);
+					propertiesSchema.put(JsonSchemaDraft4.ADDITIONAL_PROPERTIES, propertiesAllOfWrapper);
 					constraints.add(propertiesSchema);
 				}				
 			}

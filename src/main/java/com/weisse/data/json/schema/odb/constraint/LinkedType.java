@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.weisse.data.json.schema.odb.OTypeJsonSchemaMap;
+import com.weisse.data.json.schema.odb.vocabulary.JsonSchemaDraft4;
 
 public class LinkedType extends AbstractConstraint{
 
@@ -22,15 +23,15 @@ public class LinkedType extends AbstractConstraint{
 			ArrayNode constraints = this.getConstraints(propertySchema);
 			switch(oProperty.getType()){
 				case EMBEDDEDLIST:
-					linkedTypeSchema.put("items", typeSchema);
+					linkedTypeSchema.put(JsonSchemaDraft4.ITEMS, typeSchema);
 					constraints.add(linkedTypeSchema);
 				break;
 				case EMBEDDEDSET:
-					linkedTypeSchema.put("items", typeSchema);
+					linkedTypeSchema.put(JsonSchemaDraft4.ITEMS, typeSchema);
 					constraints.add(linkedTypeSchema);
 				break;
 				case EMBEDDEDMAP:
-					linkedTypeSchema.put("additionalProperties", typeSchema);
+					linkedTypeSchema.put(JsonSchemaDraft4.ADDITIONAL_PROPERTIES, typeSchema);
 					constraints.add(linkedTypeSchema);
 				break;
 			}

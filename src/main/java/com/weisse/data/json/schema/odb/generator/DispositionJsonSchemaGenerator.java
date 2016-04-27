@@ -1,7 +1,6 @@
 package com.weisse.data.json.schema.odb.generator;
 
 import java.util.Collection;
-import java.util.Set;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -13,6 +12,7 @@ import com.weisse.data.json.schema.odb.OJsonSchemaFactory;
 import com.weisse.data.json.schema.odb.enumeration.DispositionSchema;
 import com.weisse.data.json.schema.odb.strategy.PropertyNameStrategy;
 import com.weisse.data.json.schema.odb.strategy.RequiredPropertyStrategy;
+import com.weisse.data.json.schema.odb.vocabulary.JsonSchemaDraft4;
 
 public class DispositionJsonSchemaGenerator {
 
@@ -45,11 +45,11 @@ public class DispositionJsonSchemaGenerator {
 				);
 			}
 		}
-		requiredSchema.put("required", requiredItems);
+		requiredSchema.put(JsonSchemaDraft4.REQUIRED, requiredItems);
 		ObjectNode createSchema = new ObjectNode(JsonNodeFactory.instance);
 		ObjectNode classSchema;
 		if(export){
-			createSchema.put("id", configuration.getBaseURL() + "/create/" + oClass.getName() + ".json");
+			createSchema.put(JsonSchemaDraft4.ID, configuration.getBaseURL() + "/create/" + oClass.getName() + ".json");
 			classSchema = OClassJsonSchemaGenerator
 									.getInstance()
 									.getReference(oClass);
@@ -64,7 +64,7 @@ public class DispositionJsonSchemaGenerator {
 		if(requiredItems.size() > 0){
 			allOf.add(requiredSchema);
 		}
-		createSchema.put("allOf", allOf);
+		createSchema.put(JsonSchemaDraft4.ALL_OF, allOf);
 		return createSchema;
 	}
 
@@ -79,19 +79,19 @@ public class DispositionJsonSchemaGenerator {
 		ObjectNode definitions = new ObjectNode(JsonNodeFactory.instance);
 		ArrayNode oneOf = new ArrayNode(JsonNodeFactory.instance);
 		ObjectNode single = new ObjectNode(JsonNodeFactory.instance);
-		single.put("$ref", "#/definitions/single");
+		single.put(JsonSchemaDraft4.$REF, "#/definitions/single");
 		ObjectNode multiple = new ObjectNode(JsonNodeFactory.instance);
-		multiple.put("type", "array");
+		multiple.put(JsonSchemaDraft4.TYPE, JsonSchemaDraft4.ARRAY);
 		ObjectNode items = new ObjectNode(JsonNodeFactory.instance);
-		items.put("$ref", "#/definitions/single");
-		multiple.put("items", items);
-		multiple.put("minItems", 1);
+		items.put(JsonSchemaDraft4.$REF, "#/definitions/single");
+		multiple.put(JsonSchemaDraft4.ITEMS, items);
+		multiple.put(JsonSchemaDraft4.MIN_ITEMS, 1);
 		oneOf.add(single);
 		oneOf.add(multiple);
 		ObjectNode multiCreateSchema = new ObjectNode(JsonNodeFactory.instance);
 		if(export){
 			definitions.put("single", configuration.getBaseURL() + "/create/" + oClass.getName() + ".json");
-			multiCreateSchema.put("id", configuration.getBaseURL() + "/multicreate/" + oClass.getName() + ".json");
+			multiCreateSchema.put(JsonSchemaDraft4.ID, configuration.getBaseURL() + "/multicreate/" + oClass.getName() + ".json");
 		}else{
 			definitions.put(
 					"single", 
@@ -101,8 +101,8 @@ public class DispositionJsonSchemaGenerator {
 									.getSchema()
 			);
 		}
-		multiCreateSchema.put("definitions", definitions);
-		multiCreateSchema.put("oneOf", oneOf);
+		multiCreateSchema.put(JsonSchemaDraft4.DEFINITIONS, definitions);
+		multiCreateSchema.put(JsonSchemaDraft4.ONE_OF, oneOf);
 		return multiCreateSchema;
 	}
 	
@@ -118,9 +118,9 @@ public class DispositionJsonSchemaGenerator {
 		ObjectNode patchSchema = new ObjectNode(JsonNodeFactory.instance);
 		ObjectNode classSchema;
 		ObjectNode minPropertiesSchema = new ObjectNode(JsonNodeFactory.instance);
-		minPropertiesSchema.put("minProperties", 1);
+		minPropertiesSchema.put(JsonSchemaDraft4.MIN_PROPERTIES, 1);
 		if(export){
-			patchSchema.put("id", configuration.getBaseURL() + "/create/" + oClass.getName() + ".json");
+			patchSchema.put(JsonSchemaDraft4.ID, configuration.getBaseURL() + "/patch/" + oClass.getName() + ".json");
 			classSchema = OClassJsonSchemaGenerator
 									.getInstance()
 									.getReference(oClass);
@@ -133,7 +133,7 @@ public class DispositionJsonSchemaGenerator {
 		ArrayNode allOf = new ArrayNode(JsonNodeFactory.instance);
 		allOf.add(classSchema);
 		allOf.add(minPropertiesSchema);
-		patchSchema.put("allOf", allOf);
+		patchSchema.put(JsonSchemaDraft4.ALL_OF, allOf);
 		return patchSchema;
 	}
 	
@@ -157,14 +157,14 @@ public class DispositionJsonSchemaGenerator {
 									.getInstance()
 									.apply(property)
 			);
-			requiredPropertyWrapper.put("required", requiredProperty);
+			requiredPropertyWrapper.put(JsonSchemaDraft4.REQUIRED, requiredProperty);
 			anyOfSchemaCollection.add(requiredPropertyWrapper);
 		}
-		anyOfSchema.put("anyOf", anyOfSchemaCollection);
+		anyOfSchema.put(JsonSchemaDraft4.ANY_OF, anyOfSchemaCollection);
 		ObjectNode patchSchema = new ObjectNode(JsonNodeFactory.instance);
 		ObjectNode classSchema;
 		if(export){
-			patchSchema.put("id", configuration.getBaseURL() + "/create/" + oClass.getName() + ".json");
+			patchSchema.put(JsonSchemaDraft4.ID, configuration.getBaseURL() + "/strictPatch/" + oClass.getName() + ".json");
 			classSchema = OClassJsonSchemaGenerator
 									.getInstance()
 									.getReference(oClass);
@@ -179,7 +179,7 @@ public class DispositionJsonSchemaGenerator {
 		if(anyOfSchemaCollection.size() > 0){
 			allOf.add(anyOfSchema);
 		}
-		patchSchema.put("allOf", allOf);
+		patchSchema.put(JsonSchemaDraft4.ALL_OF, allOf);
 		return patchSchema;
 	}
 	

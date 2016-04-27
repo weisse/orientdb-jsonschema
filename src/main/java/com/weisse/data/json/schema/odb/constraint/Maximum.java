@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.weisse.data.json.schema.odb.OTypeJsonSchemaMap;
+import com.weisse.data.json.schema.odb.vocabulary.JsonSchemaDraft4;
 
 public class Maximum extends AbstractConstraint{
 
@@ -19,21 +20,21 @@ public class Maximum extends AbstractConstraint{
 			int max = Integer.parseInt(maxString);
 			ArrayNode constraints = this.getConstraints(propertySchema);
 			ObjectNode typeSchema = (ObjectNode) typeMap.get(oProperty.getType());
-			switch(typeSchema.get("type").asText()){
-				case "number":
-					maxSchema.put("maximum", max);
+			switch(typeSchema.get(JsonSchemaDraft4.TYPE).asText()){
+				case JsonSchemaDraft4.NUMBER:
+					maxSchema.put(JsonSchemaDraft4.MAXIMUM, max);
 					constraints.add(maxSchema);
 				break;
-				case "string":
-					maxSchema.put("maxLength", max);
+				case JsonSchemaDraft4.STRING:
+					maxSchema.put(JsonSchemaDraft4.MAX_LENGTH, max);
 					constraints.add(maxSchema);
 				break;
-				case "array":
-					maxSchema.put("maxItems", max);
+				case JsonSchemaDraft4.ARRAY:
+					maxSchema.put(JsonSchemaDraft4.MAX_ITEMS, max);
 					constraints.add(maxSchema);
 				break;
-				case "object":
-					maxSchema.put("maxProperties", max);
+				case JsonSchemaDraft4.OBJECT:
+					maxSchema.put(JsonSchemaDraft4.MAX_PROPERTIES, max);
 					constraints.add(maxSchema);
 				break;
 			}

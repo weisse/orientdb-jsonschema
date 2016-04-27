@@ -10,6 +10,7 @@ import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.weisse.data.json.schema.odb.OJsonSchemaConfiguration;
 import com.weisse.data.json.schema.odb.OJsonSchemaFactory;
 import com.weisse.data.json.schema.odb.strategy.PropertyNameStrategy;
+import com.weisse.data.json.schema.odb.vocabulary.JsonSchemaDraft4;
 
 public class OClassJsonSchemaGenerator {
 
@@ -29,7 +30,7 @@ public class OClassJsonSchemaGenerator {
 	public ObjectNode getReference(OClass oClass){
 		OJsonSchemaConfiguration configuration = OJsonSchemaConfiguration.getInstance();
 		ObjectNode classReference = new ObjectNode(JsonNodeFactory.instance);
-		classReference.put("$ref", configuration.getBaseURL() + "/classes/" + oClass.getName() + ".json");
+		classReference.put(JsonSchemaDraft4.$REF, configuration.getBaseURL() + "/classes/" + oClass.getName() + ".json");
 		return classReference;
 	}
 	
@@ -45,11 +46,11 @@ public class OClassJsonSchemaGenerator {
 		ArrayNode jsonAllOf = new ArrayNode(JsonNodeFactory.instance);
 		Collection<OClass> superclasses = oClass.getSuperClasses();
 		ObjectNode objectSchema = new ObjectNode(JsonNodeFactory.instance);
-		objectSchema.put("type", "object");
+		objectSchema.put(JsonSchemaDraft4.TYPE, JsonSchemaDraft4.OBJECT);
 		ObjectNode jsonProperties = new ObjectNode(JsonNodeFactory.instance);
 		Collection<OProperty> properties = oClass.declaredProperties();
 		if(export){
-			jsonSchema.put("id", this.getReference(oClass).get("$ref"));
+			jsonSchema.put(JsonSchemaDraft4.ID, this.getReference(oClass).get(JsonSchemaDraft4.$REF));
 			for(OClass superclass: superclasses){
 				jsonAllOf.add(this.getReference(superclass));
 			}
@@ -84,9 +85,9 @@ public class OClassJsonSchemaGenerator {
 				);
 			}
 		}
-		objectSchema.put("properties", jsonProperties);
+		objectSchema.put(JsonSchemaDraft4.PROPERTIES, jsonProperties);
 		jsonAllOf.add(objectSchema);
-		jsonSchema.put("allOf", jsonAllOf);
+		jsonSchema.put(JsonSchemaDraft4.ALL_OF, jsonAllOf);
 		return jsonSchema;
 	}
 	
