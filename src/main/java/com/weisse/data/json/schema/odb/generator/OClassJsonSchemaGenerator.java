@@ -9,7 +9,6 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.weisse.data.json.schema.odb.OJsonSchemaConfiguration;
 import com.weisse.data.json.schema.odb.OJsonSchemaFactory;
-import com.weisse.data.json.schema.odb.strategy.PropertyNameStrategy;
 import com.weisse.data.json.schema.odb.vocabulary.JsonSchemaDraft4;
 
 public class OClassJsonSchemaGenerator {
@@ -56,8 +55,9 @@ public class OClassJsonSchemaGenerator {
 			}
 			for(OProperty property: properties){
 				jsonProperties.put(
-						PropertyNameStrategy
+						OJsonSchemaConfiguration
 								.getInstance()
+								.getPropertyNameStrategy()
 								.apply(property),
 						OPropertyJsonSchemaGenerator
 								.getInstance()
@@ -75,8 +75,9 @@ public class OClassJsonSchemaGenerator {
 			}
 			for(OProperty property: properties){
 				jsonProperties.put(
-						PropertyNameStrategy
+						OJsonSchemaConfiguration
 								.getInstance()
+								.getPropertyNameStrategy()
 								.apply(property),
 						OJsonSchemaFactory
 								.getInstance()

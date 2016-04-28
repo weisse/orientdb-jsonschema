@@ -4,20 +4,21 @@ import java.util.Set;
 
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.weisse.data.json.schema.odb.OJsonSchemaConfiguration;
+import com.weisse.data.json.schema.odb.interfaces.RequiredPropertyStrategy;
 
-public class RequiredPropertyStrategy {
+public class RequiredEdgesEnds implements RequiredPropertyStrategy{
 
-	private static final RequiredPropertyStrategy INSTANCE = new RequiredPropertyStrategy();
+	private static final RequiredEdgesEnds INSTANCE = new RequiredEdgesEnds();
 	
 	private static final String OUT = "out";
 	private static final String IN = "in";
 	private static final String EDGE = "E";
 	
-	public static RequiredPropertyStrategy getInstance(){
+	public static RequiredEdgesEnds getInstance(){
 		return INSTANCE;
 	}
 	
-	private RequiredPropertyStrategy() {}
+	private RequiredEdgesEnds() {}
 	
 	/**
 	 * It evaluates if a property is required or not, according to the configuration

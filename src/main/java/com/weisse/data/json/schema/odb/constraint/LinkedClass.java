@@ -6,11 +6,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.weisse.data.json.schema.odb.OJsonSchemaConfiguration;
 import com.weisse.data.json.schema.odb.OJsonSchemaFactory;
 import com.weisse.data.json.schema.odb.OTypeJsonSchemaMap;
 import com.weisse.data.json.schema.odb.generator.OClassJsonSchemaGenerator;
-import com.weisse.data.json.schema.odb.strategy.PropertyNameStrategy;
-import com.weisse.data.json.schema.odb.strategy.RequiredPropertyStrategy;
+import com.weisse.data.json.schema.odb.interfaces.RequiredPropertyStrategy;
 import com.weisse.data.json.schema.odb.vocabulary.JsonSchemaDraft4;
 
 public class LinkedClass extends AbstractConstraint{
@@ -49,14 +49,18 @@ public class LinkedClass extends AbstractConstraint{
 												.getOJsonSchema(oClass)
 												.getSchema();
 				}
-				RequiredPropertyStrategy requiredStrategy = RequiredPropertyStrategy.getInstance();
+				RequiredPropertyStrategy requiredStrategy = 
+						OJsonSchemaConfiguration
+										.getInstance()
+										.getRequiredPropertyStrategy();
 				ObjectNode requiredSchema = new ObjectNode(JsonNodeFactory.instance);
 				ArrayNode requiredItems = new ArrayNode(JsonNodeFactory.instance);
 				for(OProperty oClassProperty: oClass.properties()){
 					if(requiredStrategy.isRequired(oClassProperty)){
 						requiredItems.add(
-							PropertyNameStrategy
+							OJsonSchemaConfiguration
 								.getInstance()
+								.getPropertyNameStrategy()
 								.apply(oClassProperty)
 						);
 					}

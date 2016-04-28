@@ -1,5 +1,7 @@
 package com.weisse.data.json.schema.odb.generator;
 
+import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
+
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -9,8 +11,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.weisse.data.json.schema.odb.interfaces.PropertyConstraint;
 import com.weisse.data.json.schema.odb.vocabulary.JsonSchemaDraft4;
-
-import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 
 
 

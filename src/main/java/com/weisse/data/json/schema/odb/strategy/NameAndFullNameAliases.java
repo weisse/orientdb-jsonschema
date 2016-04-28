@@ -4,16 +4,17 @@ import java.util.Map;
 
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.weisse.data.json.schema.odb.OJsonSchemaConfiguration;
+import com.weisse.data.json.schema.odb.interfaces.PropertyNameStrategy;
 
-public class PropertyNameStrategy {
+public class NameAndFullNameAliases implements PropertyNameStrategy{
 
-	private static final PropertyNameStrategy INSTANCE = new PropertyNameStrategy();
+	private static final NameAndFullNameAliases INSTANCE = new NameAndFullNameAliases();
 	
-	public static PropertyNameStrategy getInstance(){
+	public static NameAndFullNameAliases getInstance(){
 		return INSTANCE;
 	}
 	
-	private PropertyNameStrategy() {}
+	private NameAndFullNameAliases() {}
 	
 	/**
 	 * It returns which name should be applied to the property

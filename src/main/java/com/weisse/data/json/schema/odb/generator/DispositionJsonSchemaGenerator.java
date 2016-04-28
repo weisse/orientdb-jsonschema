@@ -10,8 +10,7 @@ import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.weisse.data.json.schema.odb.OJsonSchemaConfiguration;
 import com.weisse.data.json.schema.odb.OJsonSchemaFactory;
 import com.weisse.data.json.schema.odb.enumeration.DispositionSchema;
-import com.weisse.data.json.schema.odb.strategy.PropertyNameStrategy;
-import com.weisse.data.json.schema.odb.strategy.RequiredPropertyStrategy;
+import com.weisse.data.json.schema.odb.interfaces.RequiredPropertyStrategy;
 import com.weisse.data.json.schema.odb.vocabulary.JsonSchemaDraft4;
 
 public class DispositionJsonSchemaGenerator {
@@ -32,15 +31,16 @@ public class DispositionJsonSchemaGenerator {
 	 */
 	private ObjectNode generateCreateSchema(OClass oClass, boolean export){
 		OJsonSchemaConfiguration configuration = OJsonSchemaConfiguration.getInstance();
-		RequiredPropertyStrategy requiredStrategy = RequiredPropertyStrategy.getInstance();
+		RequiredPropertyStrategy requiredStrategy = configuration.getRequiredPropertyStrategy();
 		ObjectNode requiredSchema = new ObjectNode(JsonNodeFactory.instance);
 		ArrayNode requiredItems = new ArrayNode(JsonNodeFactory.instance);
 		Collection<OProperty> properties = oClass.properties();
 		for(OProperty property: properties){
 			if(requiredStrategy.isRequired(property)){
 				requiredItems.add(
-					PropertyNameStrategy
+						OJsonSchemaConfiguration
 									.getInstance()
+									.getPropertyNameStrategy()
 									.apply(property)
 				);
 			}
@@ -153,8 +153,9 @@ public class DispositionJsonSchemaGenerator {
 			ObjectNode requiredPropertyWrapper = new ObjectNode(JsonNodeFactory.instance);
 			ArrayNode requiredProperty = new ArrayNode(JsonNodeFactory.instance);
 			requiredProperty.add(
-					PropertyNameStrategy
+					OJsonSchemaConfiguration
 									.getInstance()
+									.getPropertyNameStrategy()
 									.apply(property)
 			);
 			requiredPropertyWrapper.put(JsonSchemaDraft4.REQUIRED, requiredProperty);

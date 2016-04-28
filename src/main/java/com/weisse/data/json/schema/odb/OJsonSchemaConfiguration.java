@@ -9,6 +9,10 @@ import java.util.Set;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.weisse.data.json.schema.odb.interfaces.PropertyNameStrategy;
+import com.weisse.data.json.schema.odb.interfaces.RequiredPropertyStrategy;
+import com.weisse.data.json.schema.odb.strategy.NameAndFullNameAliases;
+import com.weisse.data.json.schema.odb.strategy.RequiredEdgesEnds;
 import com.weisse.data.json.schema.odb.vocabulary.JsonSchemaDraft4;
 
 public class OJsonSchemaConfiguration {
@@ -23,6 +27,8 @@ public class OJsonSchemaConfiguration {
 	private final Set<String> required = new HashSet<String>();
 	private final Set<String> unrequired = new HashSet<String>();
 	private final Map<String,String> aliases = new HashMap<String,String>();
+	private PropertyNameStrategy propertyNameStrategy;
+	private RequiredPropertyStrategy requiredPropertyStrategy;
 	
 	public static final OJsonSchemaConfiguration getInstance(){
 		return INSTANCE;
@@ -45,6 +51,25 @@ public class OJsonSchemaConfiguration {
 		ObjectNode linkSchemaObject = new ObjectNode(JsonNodeFactory.instance);
 		linkSchemaObject.put(JsonSchemaDraft4.TYPE, JsonSchemaDraft4.STRING);
 		this.setLinkSchema(linkSchemaObject);
+		this.setPropertyNameStrategy(NameAndFullNameAliases.getInstance());
+		this.setRequiredPropertyStrategy(RequiredEdgesEnds.getInstance());
+	}
+
+	public RequiredPropertyStrategy getRequiredPropertyStrategy() {
+		return requiredPropertyStrategy;
+	}
+
+	public void setRequiredPropertyStrategy(
+			RequiredPropertyStrategy requiredPropertyStrategy) {
+		this.requiredPropertyStrategy = requiredPropertyStrategy;
+	}
+
+	public PropertyNameStrategy getPropertyNameStrategy() {
+		return propertyNameStrategy;
+	}
+
+	public void setPropertyNameStrategy(PropertyNameStrategy propertyNameStrategy) {
+		this.propertyNameStrategy = propertyNameStrategy;
 	}
 
 	public String getSchemaSPECS() {
