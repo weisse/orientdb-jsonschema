@@ -8,21 +8,20 @@ import com.weisse.data.json.schema.odb.interfaces.PropertyNameStrategy;
 
 public class NameAndFullNameAliases implements PropertyNameStrategy{
 
-	private static final NameAndFullNameAliases INSTANCE = new NameAndFullNameAliases();
+	private static final PropertyNameStrategy INSTANCE = new NameAndFullNameAliases();
 	
-	public static NameAndFullNameAliases getInstance(){
+	public static final PropertyNameStrategy getInstance(){
 		return INSTANCE;
 	}
 	
-	private NameAndFullNameAliases() {}
+	public NameAndFullNameAliases() {}
 	
 	/**
 	 * It returns which name should be applied to the property
 	 * @param oProperty
 	 * @return
 	 */
-	public String apply(OProperty oProperty){
-		OJsonSchemaConfiguration configuration = OJsonSchemaConfiguration.getInstance();
+	public String apply(OProperty oProperty, OJsonSchemaConfiguration configuration){
 		Map<String,String> aliases = configuration.getAliases();
 		String fullName = oProperty.getFullName();
 		String alias = aliases.get(fullName);

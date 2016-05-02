@@ -2,6 +2,7 @@ package com.weisse.data.json.schema.odb.generator;
 
 import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 
+import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -9,22 +10,28 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
+import com.weisse.data.json.schema.odb.OJsonSchemaConfiguration;
 import com.weisse.data.json.schema.odb.interfaces.PropertyConstraint;
 import com.weisse.data.json.schema.odb.vocabulary.JsonSchemaDraft4;
 
 
-
+/**
+ * This class is able to generate or export JsonSchema starting from a OProperty
+ * @author weisse
+ *
+ */
 public class OPropertyJsonSchemaGenerator {
 
-	private static final OPropertyJsonSchemaGenerator INSTANCE = new OPropertyJsonSchemaGenerator();
-	
-	public static final OPropertyJsonSchemaGenerator getInstance(){
-		return INSTANCE;
-	}
-	
+	private OJsonSchemaConfiguration configuration;
 	private final Collection<PropertyConstraint> constraints = new HashSet<PropertyConstraint>();
 	
-	private OPropertyJsonSchemaGenerator(){
+	/**
+	 * The constructor fills the constraint collection passing them
+	 * the provided configuration
+	 * @param configuration
+	 */
+	public OPropertyJsonSchemaGenerator(OJsonSchemaConfiguration configuration){
+		this.configuration = configuration;
 		fillConstraintCollection();
 	}
 	
@@ -36,7 +43,10 @@ public class OPropertyJsonSchemaGenerator {
 				new FastClasspathScanner("com.weisse.data.json.schema.odb.constraint");
 		scanner.matchClassesImplementing(PropertyConstraint.class, subclass -> {
 			try {				
-				this.constraints.add(subclass.newInstance());
+				Constructor<? extends PropertyConstraint> constructor =
+						(Constructor<? extends PropertyConstraint>)
+						subclass.getConstructor(OJsonSchemaConfiguration.class);
+				this.constraints.add(constructor.newInstance(this.configuration));
 			} catch (Exception e) {}
 		}).scan();
 	}

@@ -4,11 +4,14 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
+import com.weisse.data.json.schema.odb.OJsonSchemaConfiguration;
 import com.weisse.data.json.schema.odb.vocabulary.JsonSchemaDraft4;
 
-public class NotNull extends AbstractConstraint{
+public class NotNull extends AbstractPropertyConstraint{
 
-	public NotNull() {}
+	public NotNull(OJsonSchemaConfiguration configuration) {
+		super(configuration);
+	}
 	
 	@Override
 	public void apply(OProperty oProperty, ObjectNode propertySchema, boolean export) {

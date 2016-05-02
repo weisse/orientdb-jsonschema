@@ -17,8 +17,6 @@ import com.weisse.data.json.schema.odb.vocabulary.JsonSchemaDraft4;
 
 public class OJsonSchemaConfiguration {
 	
-	private static final OJsonSchemaConfiguration INSTANCE = new OJsonSchemaConfiguration();
-	
 	private String schemaSPECS = "http://json-schema.org/draft-04/schema#";
 	private URL baseURL;
 	private String datePattern;
@@ -30,11 +28,7 @@ public class OJsonSchemaConfiguration {
 	private PropertyNameStrategy propertyNameStrategy;
 	private RequiredPropertyStrategy requiredPropertyStrategy;
 	
-	public static final OJsonSchemaConfiguration getInstance(){
-		return INSTANCE;
-	}
-	
-	private OJsonSchemaConfiguration(){
+	public OJsonSchemaConfiguration(){
 		this.setDefaults();
 	}
 	
@@ -46,8 +40,8 @@ public class OJsonSchemaConfiguration {
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
-		this.setDatePattern("(?:19|20)[0-9]{2}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-9])|(?:(?!02)(?:0[1-9]|1[0-2])-(?:30))|(?:(?:0[13578]|1[02])-31))");
-		this.setDateTimePattern("");
+		this.setDatePattern("^\\d\\d*?-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$");
+		this.setDateTimePattern("^\\d\\d*?-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])\\s(0[1-9]|1[0-9]|2[0-4]):(0[1-9]|[1-5][0-9]|60)(:(0[1-9]|[1-5][0-9]|60),\\d\\d*$|:(0[1-9]|[1-5][0-9]|60)$)");
 		ObjectNode linkSchemaObject = new ObjectNode(JsonNodeFactory.instance);
 		linkSchemaObject.put(JsonSchemaDraft4.TYPE, JsonSchemaDraft4.STRING);
 		this.setLinkSchema(linkSchemaObject);

@@ -5,20 +5,24 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.weisse.data.json.schema.odb.OJsonSchemaConfiguration;
 import com.weisse.data.json.schema.odb.OTypeJsonSchemaMap;
 import com.weisse.data.json.schema.odb.vocabulary.JsonSchemaDraft4;
 
-public class LinkedType extends AbstractConstraint{
+public class LinkedType extends AbstractPropertyConstraint{
 
-	public LinkedType() {}
+	public LinkedType(OJsonSchemaConfiguration configuration) {
+		super(configuration);
+	}
 	
 	@SuppressWarnings("incomplete-switch")
 	@Override
 	public void apply(OProperty oProperty, ObjectNode propertySchema, boolean export) {
-		OTypeJsonSchemaMap typeMap = OTypeJsonSchemaMap.getInstance();
 		OType oType = oProperty.getLinkedType();
 		if(oType != null){
-			ObjectNode typeSchema = (ObjectNode) typeMap.get(oType);
+			ObjectNode typeSchema = (ObjectNode) this.getTypeMap()
+														.get(oType)
+														.apply(this.configuration);
 			ObjectNode linkedTypeSchema = new ObjectNode(JsonNodeFactory.instance);
 			ArrayNode constraints = this.getConstraints(propertySchema);
 			switch(oProperty.getType()){

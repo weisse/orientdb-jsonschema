@@ -8,25 +8,34 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
+import com.orientechnologies.orient.core.metadata.schema.OSchemaProxy;
+import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import com.weisse.data.json.schema.odb.enumeration.DispositionSchema;
 import com.weisse.data.json.schema.odb.generator.DispositionJsonSchemaGenerator;
 import com.weisse.data.json.schema.odb.generator.OClassJsonSchemaGenerator;
 import com.weisse.data.json.schema.odb.generator.OPropertyJsonSchemaGenerator;
 
-public class OJsonSchemaFactory {
-
-	private static final OJsonSchemaFactory INSTANCE = new OJsonSchemaFactory();
+/**
+ * A simple interface useful to build OJsonSchema objects
+ * @author weisse
+ *
+ */
+public class OJsonSchemaFacade {
 	
-	public static final OJsonSchemaFactory getInstance(){
-		return INSTANCE;
-	}
-	
+	private OJsonSchemaConfiguration configuration;
+	private OClassJsonSchemaGenerator classSchemaGenerator;
+	private OPropertyJsonSchemaGenerator propertySchemaGenerator;
+	private DispositionJsonSchemaGenerator dispositionSchemaGenerator;
 	private Map<OClass, OJsonSchema> classSchemas = new WeakHashMap<OClass, OJsonSchema>();
 	private Map<OProperty, OJsonSchema> propertySchemas = new WeakHashMap<OProperty, OJsonSchema>();
 	private Map<DispositionSchema, Map<OClass, OJsonSchema>> dispositionSchemas = 
 			new HashMap<DispositionSchema, Map<OClass, OJsonSchema>>();
 	
-	private OJsonSchemaFactory() {
+	public OJsonSchemaFacade(OJsonSchemaConfiguration configuration) {
+		this.configuration = configuration;
+		this.classSchemaGenerator = new OClassJsonSchemaGenerator(this.configuration);
+		this.propertySchemaGenerator = new OPropertyJsonSchemaGenerator(this.configuration);
+		this.dispositionSchemaGenerator = new DispositionJsonSchemaGenerator(this.configuration);
 		for(DispositionSchema disposition: DispositionSchema.values()){
 			dispositionSchemas.put(disposition, new WeakHashMap<OClass, OJsonSchema>());
 		}
@@ -41,8 +50,7 @@ public class OJsonSchemaFactory {
 		OJsonSchema schema = classSchemas.get(oClass);
 		if(schema == null){
 			ObjectNode classSchema = 
-					OClassJsonSchemaGenerator
-								.getInstance()
+					classSchemaGenerator
 								.getSchema(oClass);
 			try {
 				schema = new OJsonSchema(classSchema);
@@ -63,8 +71,7 @@ public class OJsonSchemaFactory {
 		OJsonSchema schema = propertySchemas.get(oProperty);
 		if(schema == null){
 			ObjectNode propertySchema = 
-					OPropertyJsonSchemaGenerator
-									.getInstance()
+					propertySchemaGenerator
 									.getSchema(oProperty);
 			try {
 				schema = new OJsonSchema(propertySchema);
@@ -90,26 +97,22 @@ public class OJsonSchemaFactory {
 			switch(disposition){
 				case CREATE:
 					classSchema = 
-						DispositionJsonSchemaGenerator
-										.getInstance()
+						dispositionSchemaGenerator
 										.getCreateSchema(oClass);
 				break;
 				case MULTI_CREATE:
 					classSchema = 
-						DispositionJsonSchemaGenerator
-										.getInstance()
+						dispositionSchemaGenerator
 										.getMultiCreateSchema(oClass);
 				break;
 				case PATCH:
 					classSchema =
-						DispositionJsonSchemaGenerator
-										.getInstance()
+						dispositionSchemaGenerator
 										.getPatchSchema(oClass);
 				break;
 				case STRICT_PATCH:
 					classSchema = 
-						DispositionJsonSchemaGenerator
-										.getInstance()
+						dispositionSchemaGenerator
 										.getStrictPatchSchema(oClass);
 				break;
 			}

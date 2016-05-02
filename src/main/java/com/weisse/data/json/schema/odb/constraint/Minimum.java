@@ -4,22 +4,27 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
+import com.weisse.data.json.schema.odb.OJsonSchemaConfiguration;
 import com.weisse.data.json.schema.odb.OTypeJsonSchemaMap;
 import com.weisse.data.json.schema.odb.vocabulary.JsonSchemaDraft4;
 
-public class Minimum extends AbstractConstraint{
+public class Minimum extends AbstractPropertyConstraint{
 
-	public Minimum() {}
+	public Minimum(OJsonSchemaConfiguration configuration) {
+		super(configuration);
+	}
 	
 	@Override
 	public void apply(OProperty oProperty, ObjectNode propertySchema, boolean export) {
-		OTypeJsonSchemaMap typeMap = OTypeJsonSchemaMap.getInstance();
 		String minString = oProperty.getMin();
 		if(minString != null){
 			ObjectNode minSchema = new ObjectNode(JsonNodeFactory.instance);
 			int min = Integer.parseInt(minString);
 			ArrayNode constraints = this.getConstraints(propertySchema);
-			ObjectNode typeSchema = (ObjectNode) typeMap.get(oProperty.getType());
+			ObjectNode typeSchema = 
+					(ObjectNode) this.getTypeMap()
+											.get(oProperty.getType())
+											.apply(this.configuration);
 			switch(typeSchema.get(JsonSchemaDraft4.TYPE).asText()){
 				case JsonSchemaDraft4.NUMBER:
 					minSchema.put(JsonSchemaDraft4.MINIMUM, min);

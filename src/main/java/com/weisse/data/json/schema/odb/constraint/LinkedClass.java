@@ -7,61 +7,64 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.weisse.data.json.schema.odb.OJsonSchemaConfiguration;
-import com.weisse.data.json.schema.odb.OJsonSchemaFactory;
+import com.weisse.data.json.schema.odb.OJsonSchemaFacade;
 import com.weisse.data.json.schema.odb.OTypeJsonSchemaMap;
 import com.weisse.data.json.schema.odb.generator.OClassJsonSchemaGenerator;
 import com.weisse.data.json.schema.odb.interfaces.RequiredPropertyStrategy;
 import com.weisse.data.json.schema.odb.vocabulary.JsonSchemaDraft4;
 
-public class LinkedClass extends AbstractConstraint{
+public class LinkedClass extends AbstractPropertyConstraint{
 	
-	public LinkedClass() {}
+	public LinkedClass(OJsonSchemaConfiguration configuration) {
+		super(configuration);
+	}
 	
 	@Override
 	public void apply(OProperty oProperty, ObjectNode propertySchema, boolean export) {
-		OTypeJsonSchemaMap typeMap = OTypeJsonSchemaMap.getInstance();
+		OTypeJsonSchemaMap typeMap = this.getTypeMap();
 		OClass oClass = oProperty.getLinkedClass();
 		if(oClass != null){
 			OType type = oProperty.getType();
 			ArrayNode constraints = this.getConstraints(propertySchema);
 			if(type == OType.LINK){
-				constraints.add((ObjectNode) typeMap.get(OType.LINK));
+				constraints.add((ObjectNode) typeMap.get(OType.LINK).apply(this.configuration));
 			}else if(
 				type == OType.LINKLIST ||
 				type == OType.LINKSET
 			){
 				ObjectNode itemsSchema = new ObjectNode(JsonNodeFactory.instance);
-				itemsSchema.put(JsonSchemaDraft4.ITEMS, (ObjectNode) typeMap.get(OType.LINK));
+				itemsSchema.put(
+						JsonSchemaDraft4.ITEMS, 
+						(ObjectNode) typeMap.get(OType.LINK).apply(this.configuration)
+				);
 				constraints.add(itemsSchema);
 			}else if(type == OType.LINKMAP){
 				ObjectNode propertiesSchema = new ObjectNode(JsonNodeFactory.instance);
-				propertiesSchema.put(JsonSchemaDraft4.ADDITIONAL_PROPERTIES, (ObjectNode) typeMap.get(OType.LINK));
+				propertiesSchema.put(
+						JsonSchemaDraft4.ADDITIONAL_PROPERTIES,
+						(ObjectNode) typeMap.get(OType.LINK).apply(this.configuration)
+				);
 				constraints.add(propertiesSchema);
 			}else{
 				ObjectNode classSchema = null;
 				if(export){
-					classSchema = OClassJsonSchemaGenerator
-												.getInstance()
+					classSchema = this.getOClassSchemaGenerator()
 												.getReference(oClass);
 				}else{
-					classSchema = OJsonSchemaFactory
-												.getInstance()
-												.getOJsonSchema(oClass)
-												.getSchema();
+					classSchema = this.getOClassSchemaGenerator()
+												.getSchema(oClass);
 				}
 				RequiredPropertyStrategy requiredStrategy = 
-						OJsonSchemaConfiguration
-										.getInstance()
+							this.configuration
 										.getRequiredPropertyStrategy();
 				ObjectNode requiredSchema = new ObjectNode(JsonNodeFactory.instance);
 				ArrayNode requiredItems = new ArrayNode(JsonNodeFactory.instance);
 				for(OProperty oClassProperty: oClass.properties()){
-					if(requiredStrategy.isRequired(oClassProperty)){
+					if(requiredStrategy.isRequired(oClassProperty, this.configuration)){
 						requiredItems.add(
-							OJsonSchemaConfiguration
-								.getInstance()
+							this.configuration
 								.getPropertyNameStrategy()
-								.apply(oClassProperty)
+								.apply(oClassProperty, this.configuration)
 						);
 					}
 				}

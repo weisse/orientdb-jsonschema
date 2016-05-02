@@ -8,13 +8,13 @@ import com.weisse.data.json.schema.odb.interfaces.RequiredPropertyStrategy;
 
 public class RequiredEdgesEnds implements RequiredPropertyStrategy{
 
-	private static final RequiredEdgesEnds INSTANCE = new RequiredEdgesEnds();
+	private static final RequiredPropertyStrategy INSTANCE = new RequiredEdgesEnds();
 	
 	private static final String OUT = "out";
 	private static final String IN = "in";
 	private static final String EDGE = "E";
 	
-	public static RequiredEdgesEnds getInstance(){
+	public static RequiredPropertyStrategy getInstance(){
 		return INSTANCE;
 	}
 	
@@ -25,8 +25,7 @@ public class RequiredEdgesEnds implements RequiredPropertyStrategy{
 	 * @param oProperty
 	 * @return
 	 */
-	public boolean isRequired(OProperty oProperty){
-		OJsonSchemaConfiguration configuration = OJsonSchemaConfiguration.getInstance();
+	public boolean isRequired(OProperty oProperty, OJsonSchemaConfiguration configuration){
 		Set<String> required = configuration.getRequired();
 		String fullName = oProperty.getFullName();
 		if(required.contains(fullName)){

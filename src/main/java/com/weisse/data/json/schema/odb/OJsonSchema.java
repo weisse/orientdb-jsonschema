@@ -5,6 +5,12 @@ import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
 
+/**
+ * This class is a container of a ObjectNode describing the JsonSchema
+ * and of a JsonSchema validator useful to validate json objects 
+ * @author weisse
+ *
+ */
 public final class OJsonSchema {
 
 	private final ObjectNode schema;

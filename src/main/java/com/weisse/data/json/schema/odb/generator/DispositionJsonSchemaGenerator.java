@@ -8,20 +8,40 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.weisse.data.json.schema.odb.OJsonSchemaConfiguration;
-import com.weisse.data.json.schema.odb.OJsonSchemaFactory;
+import com.weisse.data.json.schema.odb.OJsonSchemaFacade;
 import com.weisse.data.json.schema.odb.enumeration.DispositionSchema;
 import com.weisse.data.json.schema.odb.interfaces.RequiredPropertyStrategy;
 import com.weisse.data.json.schema.odb.vocabulary.JsonSchemaDraft4;
 
+/**
+ * This class is able to build and export JsonSchemas of dispositions
+ * useful to create or edit objects
+ * @author weisse
+ *
+ */
 public class DispositionJsonSchemaGenerator {
 
-	private static final DispositionJsonSchemaGenerator INSTANCE = new DispositionJsonSchemaGenerator();
+	private OJsonSchemaConfiguration configuration;
+	private OClassJsonSchemaGenerator classSchemaGenerator;
 	
-	public static final DispositionJsonSchemaGenerator getInstance(){
-		return INSTANCE;
+	/**
+	 * The constructor set the configuration object instance
+	 */
+	public DispositionJsonSchemaGenerator(OJsonSchemaConfiguration configuration) {
+		this.configuration = configuration;
 	}
 	
-	private DispositionJsonSchemaGenerator() {}
+	/**
+	 * Lazy initialization of {@link OClassJsonSchemaGenerator}
+	 * @return
+	 */
+	private OClassJsonSchemaGenerator getOClassJsonSchemaGenerator(){
+		if(this.classSchemaGenerator == null){
+			this.classSchemaGenerator =
+					new OClassJsonSchemaGenerator(this.configuration);
+		}
+		return this.classSchemaGenerator;
+	}
 	
 	/**
 	 * It generates the JsonSchema of a creation disposition
@@ -30,18 +50,16 @@ public class DispositionJsonSchemaGenerator {
 	 * @return
 	 */
 	private ObjectNode generateCreateSchema(OClass oClass, boolean export){
-		OJsonSchemaConfiguration configuration = OJsonSchemaConfiguration.getInstance();
 		RequiredPropertyStrategy requiredStrategy = configuration.getRequiredPropertyStrategy();
 		ObjectNode requiredSchema = new ObjectNode(JsonNodeFactory.instance);
 		ArrayNode requiredItems = new ArrayNode(JsonNodeFactory.instance);
 		Collection<OProperty> properties = oClass.properties();
 		for(OProperty property: properties){
-			if(requiredStrategy.isRequired(property)){
+			if(requiredStrategy.isRequired(property, this.configuration)){
 				requiredItems.add(
-						OJsonSchemaConfiguration
-									.getInstance()
+						this.configuration
 									.getPropertyNameStrategy()
-									.apply(property)
+									.apply(property, this.configuration)
 				);
 			}
 		}
@@ -49,15 +67,15 @@ public class DispositionJsonSchemaGenerator {
 		ObjectNode createSchema = new ObjectNode(JsonNodeFactory.instance);
 		ObjectNode classSchema;
 		if(export){
-			createSchema.put(JsonSchemaDraft4.ID, configuration.getBaseURL() + "/create/" + oClass.getName() + ".json");
-			classSchema = OClassJsonSchemaGenerator
-									.getInstance()
+			createSchema.put(
+					JsonSchemaDraft4.ID,
+					this.configuration.getBaseURL() + "/create/" + oClass.getName() + ".json"
+			);
+			classSchema = this.getOClassJsonSchemaGenerator()
 									.getReference(oClass);
 		}else{
-			classSchema = OJsonSchemaFactory
-									.getInstance()
-									.getOJsonSchema(oClass)
-									.getSchema();
+			classSchema = this.getOClassJsonSchemaGenerator()
+									.getSchema(oClass);
 		}
 		ArrayNode allOf = new ArrayNode(JsonNodeFactory.instance);
 		allOf.add(classSchema);
@@ -75,7 +93,6 @@ public class DispositionJsonSchemaGenerator {
 	 * @return
 	 */
 	private ObjectNode generateMultiCreateSchema(OClass oClass, boolean export){
-		OJsonSchemaConfiguration configuration = OJsonSchemaConfiguration.getInstance();
 		ObjectNode definitions = new ObjectNode(JsonNodeFactory.instance);
 		ArrayNode oneOf = new ArrayNode(JsonNodeFactory.instance);
 		ObjectNode single = new ObjectNode(JsonNodeFactory.instance);
@@ -91,14 +108,14 @@ public class DispositionJsonSchemaGenerator {
 		ObjectNode multiCreateSchema = new ObjectNode(JsonNodeFactory.instance);
 		if(export){
 			definitions.put("single", configuration.getBaseURL() + "/create/" + oClass.getName() + ".json");
-			multiCreateSchema.put(JsonSchemaDraft4.ID, configuration.getBaseURL() + "/multicreate/" + oClass.getName() + ".json");
+			multiCreateSchema.put(
+					JsonSchemaDraft4.ID,
+					this.configuration.getBaseURL() + "/multicreate/" + oClass.getName() + ".json"
+			);
 		}else{
 			definitions.put(
 					"single", 
-					OJsonSchemaFactory
-									.getInstance()
-									.getOJsonSchema(DispositionSchema.CREATE, oClass)
-									.getSchema()
+					this.getCreateSchema(oClass)
 			);
 		}
 		multiCreateSchema.put(JsonSchemaDraft4.DEFINITIONS, definitions);
@@ -114,21 +131,20 @@ public class DispositionJsonSchemaGenerator {
 	 * @return
 	 */
 	private ObjectNode generatePatchSchema(OClass oClass, boolean export){
-		OJsonSchemaConfiguration configuration = OJsonSchemaConfiguration.getInstance();
 		ObjectNode patchSchema = new ObjectNode(JsonNodeFactory.instance);
 		ObjectNode classSchema;
 		ObjectNode minPropertiesSchema = new ObjectNode(JsonNodeFactory.instance);
 		minPropertiesSchema.put(JsonSchemaDraft4.MIN_PROPERTIES, 1);
 		if(export){
-			patchSchema.put(JsonSchemaDraft4.ID, configuration.getBaseURL() + "/patch/" + oClass.getName() + ".json");
-			classSchema = OClassJsonSchemaGenerator
-									.getInstance()
+			patchSchema.put(
+					JsonSchemaDraft4.ID,
+					this.configuration.getBaseURL() + "/patch/" + oClass.getName() + ".json"
+			);
+			classSchema = this.getOClassJsonSchemaGenerator()
 									.getReference(oClass);
 		}else{
-			classSchema = OJsonSchemaFactory
-									.getInstance()
-									.getOJsonSchema(oClass)
-									.getSchema();
+			classSchema = this.getOClassJsonSchemaGenerator()
+									.getSchema(oClass);
 		}
 		ArrayNode allOf = new ArrayNode(JsonNodeFactory.instance);
 		allOf.add(classSchema);
@@ -145,7 +161,6 @@ public class DispositionJsonSchemaGenerator {
 	 * @return
 	 */
 	private ObjectNode generateStrictPatchSchema(OClass oClass, boolean export){
-		OJsonSchemaConfiguration configuration = OJsonSchemaConfiguration.getInstance();
 		ObjectNode anyOfSchema = new ObjectNode(JsonNodeFactory.instance);
 		ArrayNode anyOfSchemaCollection = new ArrayNode(JsonNodeFactory.instance);
 		Collection<OProperty> properties = oClass.properties();
@@ -153,10 +168,9 @@ public class DispositionJsonSchemaGenerator {
 			ObjectNode requiredPropertyWrapper = new ObjectNode(JsonNodeFactory.instance);
 			ArrayNode requiredProperty = new ArrayNode(JsonNodeFactory.instance);
 			requiredProperty.add(
-					OJsonSchemaConfiguration
-									.getInstance()
+						this.configuration
 									.getPropertyNameStrategy()
-									.apply(property)
+									.apply(property, this.configuration)
 			);
 			requiredPropertyWrapper.put(JsonSchemaDraft4.REQUIRED, requiredProperty);
 			anyOfSchemaCollection.add(requiredPropertyWrapper);
@@ -165,15 +179,15 @@ public class DispositionJsonSchemaGenerator {
 		ObjectNode patchSchema = new ObjectNode(JsonNodeFactory.instance);
 		ObjectNode classSchema;
 		if(export){
-			patchSchema.put(JsonSchemaDraft4.ID, configuration.getBaseURL() + "/strictPatch/" + oClass.getName() + ".json");
-			classSchema = OClassJsonSchemaGenerator
-									.getInstance()
+			patchSchema.put(
+					JsonSchemaDraft4.ID,
+					this.configuration.getBaseURL() + "/strictPatch/" + oClass.getName() + ".json"
+			);
+			classSchema = this.getOClassJsonSchemaGenerator()
 									.getReference(oClass);
 		}else{
-			classSchema = OJsonSchemaFactory
-									.getInstance()
-									.getOJsonSchema(oClass)
-									.getSchema();
+			classSchema = this.getOClassJsonSchemaGenerator()
+									.getSchema(oClass);
 		}
 		ArrayNode allOf = new ArrayNode(JsonNodeFactory.instance);
 		allOf.add(classSchema);

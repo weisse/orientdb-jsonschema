@@ -8,18 +8,29 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.weisse.data.json.schema.odb.OJsonSchemaConfiguration;
-import com.weisse.data.json.schema.odb.OJsonSchemaFactory;
+import com.weisse.data.json.schema.odb.OJsonSchemaFacade;
 import com.weisse.data.json.schema.odb.vocabulary.JsonSchemaDraft4;
 
 public class OClassJsonSchemaGenerator {
 
-	private static final OClassJsonSchemaGenerator INSTANCE = new OClassJsonSchemaGenerator();
+	private OJsonSchemaConfiguration configuration;
+	private OPropertyJsonSchemaGenerator propertySchemaGenerator;
 	
-	public static final OClassJsonSchemaGenerator getInstance(){
-		return INSTANCE;
+	public OClassJsonSchemaGenerator(OJsonSchemaConfiguration configuration) {
+		this.configuration = configuration;
 	}
 	
-	private OClassJsonSchemaGenerator() {}
+	/**
+	 * Lazy initialization of {@link OPropertyJsonSchemaGenerator}
+	 * @return
+	 */
+	private OPropertyJsonSchemaGenerator getOPropertyJsonSchemaGenerator(){
+		if(this.propertySchemaGenerator == null){
+			this.propertySchemaGenerator =
+					new OPropertyJsonSchemaGenerator(this.configuration);
+		}
+		return this.propertySchemaGenerator;
+	}
 	
 	/**
 	 * It returns the JsonSchema containing the URI that references the provided class
@@ -27,9 +38,11 @@ public class OClassJsonSchemaGenerator {
 	 * @return
 	 */
 	public ObjectNode getReference(OClass oClass){
-		OJsonSchemaConfiguration configuration = OJsonSchemaConfiguration.getInstance();
 		ObjectNode classReference = new ObjectNode(JsonNodeFactory.instance);
-		classReference.put(JsonSchemaDraft4.$REF, configuration.getBaseURL() + "/classes/" + oClass.getName() + ".json");
+		classReference.put(
+				JsonSchemaDraft4.$REF,
+				this.configuration.getBaseURL() + "/classes/" + oClass.getName() + ".json"
+		);
 		return classReference;
 	}
 	
@@ -55,34 +68,26 @@ public class OClassJsonSchemaGenerator {
 			}
 			for(OProperty property: properties){
 				jsonProperties.put(
-						OJsonSchemaConfiguration
-								.getInstance()
+						this.configuration
 								.getPropertyNameStrategy()
-								.apply(property),
-						OPropertyJsonSchemaGenerator
-								.getInstance()
+								.apply(property, this.configuration),
+						this.getOPropertyJsonSchemaGenerator()
 								.exportSchema(property)
 				);
 			}
 		}else{
 			for(OClass superclass: superclasses){
 				jsonAllOf.add(
-						OJsonSchemaFactory
-								.getInstance()
-								.getOJsonSchema(superclass)
-								.getSchema()
+						this.getSchema(superclass)
 				);
 			}
 			for(OProperty property: properties){
 				jsonProperties.put(
-						OJsonSchemaConfiguration
-								.getInstance()
+						this.configuration
 								.getPropertyNameStrategy()
-								.apply(property),
-						OJsonSchemaFactory
-								.getInstance()
-								.getOJsonSchema(property)
-								.getSchema()
+								.apply(property, this.configuration),
+						this.getOPropertyJsonSchemaGenerator()
+								.getSchema(property)
 				);
 			}
 		}
